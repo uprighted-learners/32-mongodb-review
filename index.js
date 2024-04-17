@@ -25,6 +25,35 @@ app.get("/api/health", async (req, res) => {
     }
 });
 
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+const db = mongoose.connection;
+db.on('error', (error) => console.error(error));
+db.once('open', () => console.log('Connected to MongoDB'));
+
+// Blog Post Schema
+const blogPostSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    author: {
+        type: String,
+        required: true
+    },
+    body: {
+        type: String,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Create a model for Blog Post
+const BlogPost = mongoose.model('BlogPost', blogPostSchema);
+
 // spin up the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
