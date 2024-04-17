@@ -31,6 +31,18 @@ const db = mongoose.connection;
 db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to MongoDB'));
 
+// middleware to authenticate JSON Web Token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // BEARER TOKEN
+    if (token == null) return res.sendStatus(401);
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    })
+};
+
 // Blog Post Schema
 const blogPostSchema = new mongoose.Schema({
     title: {
@@ -53,6 +65,26 @@ const blogPostSchema = new mongoose.Schema({
 
 // Create a model for Blog Post
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
+
+// User Schema
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Create a model for a User
+const User = mongoose.model('User', userSchema);
 
 // GET - /api/blogposts - get all blog posts
 app.get("/api/blogposts", async (req, res) => {
@@ -94,7 +126,7 @@ app.post("/api/blogposts", async (req, res) => {
 })
 
 // PUT - /api/blogposts/:id - update a blog post by id
-app.put("/api/blogposts/:id", async (req, res) => {
+app.put("/api/blogposts/:id", authenticateToken, async (req, res) => {
     try {
         const post = await BlogPost.findById(req.params.id);
         if (post) {
@@ -113,7 +145,7 @@ app.put("/api/blogposts/:id", async (req, res) => {
 });
 
 // DELETE - /api/blogposts/:id - delete a blog post by id
-app.delete("/api/blogposts/:id", async (req, res) => {
+app.delete("/api/blogposts/:id", authenticateToken, async (req, res) => {
     try {
         const post = await BlogPost.findByIdAndDelete(req.params.id);
         if (!post) {
@@ -126,6 +158,42 @@ app.delete("/api/blogposts/:id", async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
+// POST - /api/register - register a new user
+app.post("/api/register", async (req, res) => {
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const user = new User({
+            username: req.body.username,
+            password: hashedPassword
+        });
+        const newUser = await user.save();
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: error.message });
+    }
+})
+
+// POST - /api/login - login a user
+app.post("/api/login", async (req, res) => {
+    const user = await User.findOne({ username: req.body.username });
+    if (user == null) {
+        res.status(401).json({ message: "Invalid credentials" });
+        return;
+    }
+    try {
+        if (await bcrypt.compare(req.body.password, user.password)) {
+            const accessToken = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.status(200).json({ message: "Login successful", token: accessToken });
+        } else {
+            res.send("Invalid credentials");
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: error.message });
+    }
+})
 
 // spin up the server
 app.listen(PORT, () => {
