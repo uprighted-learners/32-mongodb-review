@@ -4,6 +4,10 @@ document.getElementById('postForm').addEventListener('submit', (event) => {
     const author = document.getElementById('author').value;
     const body = document.getElementById('body').value;
     createPost(title, author, body);
+    // clear inputs
+    document.getElementById('title').value = "";
+    document.getElementById('author').value = "";
+    document.getElementById('body').value = "";
 });
 
 function loadPosts() {
