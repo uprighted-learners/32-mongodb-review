@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Blog Post CRUD</title>
+  </head>
+  <body>
+    <h1>Blog Post CRUD</h1>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label>Username</label>
+      <input type="text" name="username" id="username" required />
+      <label>Password</label>
+      <input type="password" name="password" id="password" required />
+      <button type="submit">Login</button>
+    </form>
+
+    <h2>Create Post</h2>
+    <form id="postForm">
+      <label>Title</label>
+      <input type="text" name="title" id="title" required />
+      <label>Author</label>
+      <input type="text" name="author" id="author" required />
+      <label>Body</label>
+      <textarea id="body" cols="30" rows="10" required></textarea>
+      <button type="submit">Create Post</button>
+    </form>
+
+    <h2>Posts</h2>
+    <ul id="postsList"></ul>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -15,6 +15,9 @@ const PORT = process.env.PORT || 8080;
 // connect to MongoDB
 require("./config/database");
 
+// serve public directory
+app.use(express.static("public"));
+
 // GET - /api/health - check if API is alive or not
 app.get("/api/health", async (req, res) => {
     try {
