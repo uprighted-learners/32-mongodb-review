@@ -21,7 +21,7 @@ document.getElementById('postForm').addEventListener('submit', (event) => {
 });
 
 function login(username, password) {
-    fetch("https://three2-mongodb-review.onrender.com/api/login", {
+    fetch("/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -46,7 +46,7 @@ function login(username, password) {
 }
 
 function loadPosts() {
-    fetch("https://three2-mongodb-review.onrender.com/api/blogposts")
+    fetch("/api/blogposts")
         .then(response => response.json())
         .then(posts => {
             const postsList = document.getElementById("postsList");
@@ -71,7 +71,7 @@ function loadPosts() {
 }
 
 function createPost(title, author, body) {
-    fetch("https://three2-mongodb-review.onrender.com/api/blogposts", {
+    fetch("/api/blogposts", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -92,7 +92,7 @@ function editPost(id) {
     const title = prompt("New title:");
     const author = prompt("New author:");
     const body = prompt("New body:");
-    fetch(`https://three2-mongodb-review.onrender.com/api/blogposts/${id}`, {
+    fetch(`/api/blogposts/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -114,7 +114,7 @@ function editPost(id) {
 }
 
 function deletePost(id) {
-    fetch(`https://three2-mongodb-review.onrender.com/api/blogposts/${id}`, {
+    fetch(`/api/blogposts/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
